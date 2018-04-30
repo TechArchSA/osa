@@ -18,6 +18,11 @@ If you are working on auditing and reviewing OpenStack Security Group rules, you
 
 ## Usage
 
+### As a tool
+WIP
+
+
+### As a library
 ```ruby
 connection = {
     auth_url:            'https://api-example.com/identity/v3',
@@ -35,7 +40,12 @@ security_groups = SecurityGroups.parse(openstack.security_group)
 pp security_groups.list
 servers = Servers.parse(openstack.servers_detail)
 pp servers.list
-pp servers.list_details
+security_groups_map = servers.map_security_groups(security_groups)
+server = servers_details[0] 
+pp server
+
+# generate a terminal report
+puts OSA::Report.create(:terminal, security_groups_map)
 ```
 
 
