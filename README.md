@@ -1,6 +1,6 @@
 # OpenStack Security Auditor (OSA)
 
-    OSA is OpenStack Security Auditor tool and library
+> OSA is OpenStack Security Auditor tool and library
 
 If you are working on auditing and reviewing OpenStack Security Group rules, you'll directly recognize how tedious this task is. There's no direct way to list all security groups' rules related to each server. OpenStack has great API but it's abstract so you can merely list server details which contain "security group name" only, so you have to retrieve all security groups, inspect its rules to know the server's rules. This task is trivial if you have on or two servers and security group, but not in bigger environments.
 
