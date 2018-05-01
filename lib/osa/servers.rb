@@ -84,6 +84,12 @@ module OSA
     end
     alias :list_servers_details :servers_details
 
+    # FIXME to find servers by security group id or name using mapped data
+    def find_by()
+
+    end
+
+
     private
     # parse server's addresses
     # @param addresses [Hash<Hash>, [Array]]
