@@ -64,6 +64,7 @@ module OSA
     #
     attr_reader :sec_grp_objs
     attr_reader :security_groups
+    attr_reader :list
 
     # Interface for the core parser (@see SecurityGroups#parser method)
     #
@@ -116,7 +117,9 @@ module OSA
     def parser(security_groups)
       @security_groups = security_groups
       @sec_grp_objs    = objectize_security_groups(security_groups)
-      @list            = retrieve_remote_group
+      # @list            = retrieve_remote_group # Fixme list and the method
+      retrieve_remote_group # Fixme list and the method
+      @list            = @sec_grp_objs # Fixme list and the method
       self
     end
 
@@ -147,7 +150,7 @@ module OSA
     #   Array of SecurityGroup objects that contains the given Rule's id
     #
     def find_rule(id)
-      @sec_grp_objs.select {|security_group| security_group.rules.select{|rule| rule.id == id}}
+      @sec_grp_objs.select { |security_group| security_group.rules.select{ |rule| rule.id == id }}
     end
 
     #
@@ -161,7 +164,7 @@ module OSA
     # @return [Array <SecurityGroup>] if no block given
     #
     def each_security_group(&block)
-      self.sec_grp_objs.map { |security_group| block_given? ? yield(security_group) : security_group }.flatten
+      @sec_grp_objs.map { |security_group| block_given? ? yield(security_group) : security_group }.flatten
     end
 
     #
@@ -204,10 +207,10 @@ module OSA
           rule[:ip_protocol],       # protocol
           rule[:from_port],         # source ports
           rule[:to_port],           # destination ports
-          rule[:ip_range][:cidr],   # source range
+          rule[:ip_range][:cidr],   # source ip_range
           rule[:parent_group_id],   # the original security group's id
           security_group[:name],    # the original security group's id
-          rule[:group][:name]
+          rule[:group][:name]       # remote security group
       )
     end
 
@@ -232,6 +235,5 @@ module OSA
         end
       end
     end
-
   end
 end
