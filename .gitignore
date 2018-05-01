@@ -2,8 +2,9 @@
 /.yardoc
 /_yardoc/
 /coverage/
-/doc/
 /pkg/
 /spec/reports/
 /tmp/
-/.ida/
+.idea/
+bin/*.*
+lib/osa/report/sheet.rb
