@@ -1,7 +1,7 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "osa/version"
+require "osa"
 
 Gem::Specification.new do |spec|
   spec.name          = "osa"
@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{OSA is OpenStack Security Auditor tool and library}
   spec.description   = %q{OSA is OpenStack Security Auditor tool and library}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = "https://github.com/TechArchSA/osa/"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
@@ -20,4 +20,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'openstack'
+  spec.add_dependency 'terminal-table'
+
+  spec.post_install_message = OSA::Utils.logo
 end
