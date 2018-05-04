@@ -70,7 +70,6 @@ module OSA
     #
     # @return [SecurityGroups] object
     def self.parse(security_groups)
-
       new.parser(security_groups)
     end
 
