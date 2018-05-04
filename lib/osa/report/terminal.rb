@@ -19,6 +19,7 @@ module OSA
         ::Terminal::Table.new(:title => "OpenStack Security Group Overview".bold, :headings => Report::HEADER) do |t|
           t.style = {:all_separators => true, :border_i => "+"}
           rows.each { |row| t.add_row row }
+          # t.add_row rows[-1]
         end
       end
 
@@ -37,12 +38,14 @@ module OSA
           status       = _server.status
           public_addr  = _server.addresses.public
           private_addr = _server.addresses.private
-          sec_grp      = _server.security_groups.map(&:name)
+          # sec_grp      = _server.security_groups.map(&:name)
+          sec_grp      = []
           protocol     = []
           from_port    = []
           to_port      = []
           ip_range     = []
-          remote_group = []
+          group        = []
+          # server's security group details
           _server.security_groups.map do |sg|
             rules =  sg.rules
             rules.map do |rule|
@@ -50,26 +53,21 @@ module OSA
               from_port    << rule.from_port
               to_port      << rule.to_port
               ip_range     << rule.ip_range
-              remote_group << rule.group
+              # as we need security group to be aligned with its rules we've to
+              # add the first label to the first rule then add nil for its other rules to
+              # be a space when we .join("\n")
+              sec_grp.include?(rule.parent_group_name)?  sec_grp << nil  : sec_grp << rule.parent_group_name
+              group << rule.group
             end
           end
-          rows << [
-              name,
-              status,
-              public_addr.join("\n"),
-              private_addr.join("\n"),
-              sec_grp.join("\n"),
-              protocol.is_a?(Array)             ? protocol.join("\n")     : protocol,
-              from_port.is_a?(Array)            ? from_port.join("\n")    : from_port,
-              to_port.is_a?(Array)              ? to_port.join("\n")      : to_port,
-              ip_range.compact.is_a?(Array)     ? ip_range.join("\n")     : ip_range,
-              remote_group.compact.is_a?(Array) ? remote_group.join("\n") : remote_group
-          ]
-        end
 
+          rows << [ name, status, public_addr.join("\n"), private_addr.join("\n"),
+                    sec_grp.join("\n"), protocol.join("\n"), from_port.join("\n"),
+                    to_port.join("\n"), ip_range.join("\n"), group.join("\n") ]
+        end
+        
         rows
       end
-
     end
   end
 end
