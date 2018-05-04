@@ -74,7 +74,6 @@ module OSA
       new.parser(security_groups)
     end
 
-    #
     # The core parser, it expects a Hash comes from openstack.security_groups,
     #   parses the retrieved security_groups hash from openstack.security_groups then
     #   extracts the needed data and build a SecurityGroup object from this data.
@@ -91,29 +90,6 @@ module OSA
     #
     # @return SecurityGroups object
     #
-    # def parser(security_groups)
-    #   @security_groups = security_groups
-    #   @@sec_grp_objs =
-    #       security_groups.keys.map do |sec_id|
-    #         secgrp = security_groups[sec_id]
-    #         rules  = secgrp[:rules].map do |rule|
-    #           Rule.new(
-    #                     rule[:id],                # rule's id
-    #                     rule[:ip_protocol],       # protocol
-    #                     rule[:from_port],         # source ports
-    #                     rule[:to_port],           # destination ports
-    #                     rule[:ip_range],          # source range
-    #                     rule[:parent_group_id],   # the original security group's id
-    #                     # find_by(:name, rule[:group][:name]) # the Remote Security Group
-    #                     # get_group_info(rule[:group]) # the Remote Security Group
-    #                     get_group_info(rule)
-    #           )
-    #         end
-    #         SecurityGroup.new(secgrp[:id], secgrp[:name], secgrp[:description], secgrp[:tenant_id], rules)
-    #       end
-    #   self
-    # end
-    #
     def parser(security_groups)
       @security_groups = security_groups
       @sec_grp_objs    = objectize_security_groups(security_groups)
@@ -123,7 +99,6 @@ module OSA
       self
     end
 
-    #
     # searches for a security group by id
     #
     # @param type [Symbol]
@@ -153,7 +128,6 @@ module OSA
       @sec_grp_objs.select { |security_group| security_group.rules.select{ |rule| rule.id == id }}
     end
 
-    #
     # Iterator for security groups can take a block
     #
     # @example
@@ -167,7 +141,6 @@ module OSA
       @sec_grp_objs.map { |security_group| block_given? ? yield(security_group) : security_group }.flatten
     end
 
-    #
     # Iterator for rules can take a block
     #
     # @example
@@ -182,7 +155,6 @@ module OSA
     end
 
     private
-    #
     # Takes a raw security_group from OpenStack#security_groups and parse it into objects of
     #   SecurityGroup objects for security group and Rule objects for rules
     #
@@ -196,7 +168,6 @@ module OSA
       end
     end
 
-    #
     # Build Rule object while parsing (@see parser)
     #
     # @return [Rule]
@@ -214,7 +185,6 @@ module OSA
       )
     end
 
-    #
     # Build SecurityGroup object while parsing (@see parser)
     #
     # @return [SecurityGroup]
@@ -223,9 +193,9 @@ module OSA
       SecurityGroup.new(secgrp[:id], secgrp[:name], secgrp[:description], secgrp[:tenant_id], rules)
     end
 
+    # retrieve all remote/parent security groups and add it to the group of each rule
     #
-    # rules_with_group = security_groups.each_rule.select {|rule| rule unless (rule.group.nil? || rule.group == rule.parent_group_name)}
-    # sg_with_rules_with_group = security_groups.each_security_group.select {|sg| security_groups.each_rule(&:group).uniq.include? sg.name}
+    # @return [SecurityGroups] object
     #
     def retrieve_remote_group
       self.each_security_group do |sg|
