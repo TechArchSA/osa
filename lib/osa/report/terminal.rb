@@ -60,7 +60,7 @@ module OSA
               group << rule.group
             end
           end
-
+          
           rows << [ name, status, public_addr.join("\n"), private_addr.join("\n"),
                     sec_grp.join("\n"), protocol.join("\n"), from_port.join("\n"),
                     to_port.join("\n"), ip_range.join("\n"), group.join("\n") ]
