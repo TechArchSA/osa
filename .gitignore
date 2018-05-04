@@ -6,8 +6,6 @@
 /spec/reports/
 /tmp/
 .idea/
-bin/*.*
 lib/osa/report/sheet.rb
-bin/osa
 connection.json
 ooo/
