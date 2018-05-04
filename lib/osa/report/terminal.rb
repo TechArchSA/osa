@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 module OSA
   module Report
+    #
+    # Terminal handles all terminal table formatting tasks, then generate the table
+    #
     class Terminal
 
       def self.generate(security_groups_map)
         new.build_table(security_groups_map.clone)
       end
 
-      #
       # build table instance
       #
       # @param [Array <OSA::Servers::Server>]
@@ -19,12 +21,10 @@ module OSA
         ::Terminal::Table.new(:title => "OpenStack Security Group Overview".bold, :headings => Report::HEADER) do |t|
           t.style = {:all_separators => true, :border_i => "+"}
           rows.each { |row| t.add_row row }
-          # t.add_row rows[-1]
         end
       end
 
       private
-      #
       # parse and create the table's  rows
       #
       # @param [Array <OSA::Servers::Server>]
@@ -65,7 +65,7 @@ module OSA
                     sec_grp.join("\n"), protocol.join("\n"), from_port.join("\n"),
                     to_port.join("\n"), ip_range.join("\n"), group.join("\n") ]
         end
-        
+
         rows
       end
     end
