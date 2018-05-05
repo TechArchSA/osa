@@ -1,0 +1,115 @@
+#
+# @Author: KING SABRI - @KINGSABRI
+#
+lib = File.dirname(__FILE__) + '/../lib'
+$:.unshift(lib) unless $:.include?(lib)
+require 'osa'
+require 'optionparser'
+
+options = {}
+option_parser = OptionParser.new
+option_parser.banner = "#{"OpenStack Security Auditor (OSA)".bold} - Tool to extract, map, run_audit OpenStack security groups with servers."
+option_parser.set_summary_indent '   '
+option_parser.separator "\nHelp menu:".underline
+option_parser.on('-c', '--connect [JSON_FILE]',
+                 'connect to OpenStack using given json file.',
+                 '  (leave the file blank to generate a template file "connect.json")'
+) {|v| options[:connect] = v || ''}
+option_parser.on('-d', '--dump FILE',
+                 'import security group and server details dump file,',
+                 '  (use OSE "https://github.com/TechArchSA/ose" tool.)'
+) {|v| options[:dump] = v}
+option_parser.on('-k', '--key PASSWORD',
+                 'decrypt the given security group file, if encryption option used in OSE tool.',
+                 '  (used with -d/--dump)'
+) {|v| options[:password] = v}
+option_parser.on('-a', '--audit [AUDITRULE]',
+                 'audit the given security groups,',
+                 '  (default: all)'
+) {|v| options[:audit] = v || "all"}
+
+options[:report_type] = :terminal
+option_parser.on('--report-as [terminal|sheet]',
+                 'show the report as terminal table or as a sheet,',
+                 '  (default: terminal)'
+) do |v|
+  v = v.to_sym if v.kind_of?(String)
+  options[:report_type] = v || options[:report_type]
+end
+
+option_parser.on('-v', '--version', 'Check current and latest version') { |v| options[:version] = v }
+option_parser.on('-h', '--help', 'Show this help message') {puts OSA::Utils.logo , option_parser; exit!}
+option_parser.separator "\nAudit modules Options:".underline
+option_parser.separator "- exposed_admin_ports"
+option_parser.on('-p', '--pub-ports PORTS', Array,
+                 'public ports that are naturally public. ports separated by comma with no spaces.',
+                 "  (default: #{OSA::Audit::Rule::ExposedAdminPorts::PUB_PORTS})"
+) {|v| options[:pub_ports] = v}
+
+option_parser.on('-P', '--prv-ports PORTS', Array,
+                 'private ports that used to access critical services. ports separated by comma with no spaces.',
+                 "  (default: #{OSA::Audit::Rule::ExposedAdminPorts::PRV_PORTS})"
+) {|v| options[:prv_ports] = v}
+option_parser.separator "- insecure_protocols"
+option_parser.on('-i', '--insec-ports PORTS', Array,
+                 'public ports that are naturally public. ports separated by comma with no spaces.',
+                 "  (default: #{OSA::Audit::Rule::ExposedAdminPorts::PUB_PORTS})"
+) {|v| options[:ports] = v}
+option_parser.separator "- overlap_rules"
+
+option_parser.on_tail "\nUsage:\n".underline + "osa <OPTIONS>"
+option_parser.on_tail "\nExample:".underline
+option_parser.on_tail %Q{osa -c connection.json}
+option_parser.on_tail %Q{osa -c connection.json -a exposed_admin_ports -P 3389,22,445 }
+option_parser.on_tail %Q{osa -d security_groups_map.yml -a exposed_admin_ports -P 3389,22,445 }
+
+begin
+  include OSA::Utils
+  include OSA::Version
+  include OSA::Helpers::Options
+  option_parser.parse! ARGV
+
+  # wrapping all available audit rules' options
+  # each rule will extract the option it needs
+  # no matter what other data in audit_options
+  audit_options =
+      {
+          pub_ports: options[:pub_ports], prv_ports: options[:prv_ports]
+      }
+
+  version                                if options[:version]
+  report_main(options[:report_type],
+             connect(options[:connect])) if  options[:connect]
+
+
+  report_main(options[:report_type],
+             dump(options[:dump],
+             options[:password]))        if options[:dump]
+
+
+  report_audit(options[:report_type],
+               connect(options[:connect]),
+               options[:audit],
+               audit_options)            if options[:audit] && options[:connect]
+
+
+  report_audit(options[:report_type],
+               dump(options[:dump],
+                    options[:password]),
+               options[:audit],
+               audit_options)            if options[:audit] && options[:dump]
+
+
+  puts OSA::Utils.logo, option_parser    if options.empty?
+rescue OptionParser::MissingArgument => e
+  e.args.each {|arg| puts '[!] '.red + "#{e.reason.capitalize} for '#{arg}' option."}
+  puts option_parser
+rescue OptionParser::InvalidOption => e
+  puts '[!] '.red + "#{e}"
+  puts option_parser
+rescue Exception => e
+  puts "[x] ".red + "Unknown Exception: option parser"
+  puts '[!] '.yellow + 'Please report the issue at: https://github.com/TechArchSA/osa/issues'.underline
+  puts e.backtrace_locations
+  puts e
+end
