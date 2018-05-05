@@ -83,7 +83,7 @@ module OSA
     #   Hash comes from openstack.security_group
     #
     # @example
-    #   openstack = OpenStack::Connection.create(connection)
+    #   openstack = OpenStack::Connection.main(connection)
     #   os_security_groups = openstack.security_groups
     #   security_groups = SecurityGroups.parse(os_security_groups)
     #

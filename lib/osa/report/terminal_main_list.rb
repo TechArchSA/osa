@@ -2,9 +2,11 @@
 module OSA
   module Report
     #
-    # Terminal handles all terminal table formatting tasks, then generate the table
+    # TerminalMainList handles all terminal table formatting tasks, then generate the table
     #
-    class Terminal
+    class TerminalMainList
+      HEADER = ['Server name', 'Status', 'Public address', 'Private address', 'Security groups', 'Protocol',
+                'From port', 'To port', 'IP range', 'Remote group' ]
 
       def self.generate(security_groups_map)
         new.build_table(security_groups_map.clone)
@@ -18,14 +20,14 @@ module OSA
       #
       def build_table(security_groups_map)
         rows = build_table_data(security_groups_map)
-        ::Terminal::Table.new(:title => "OpenStack Security Group Overview".bold, :headings => Report::HEADER) do |t|
+        ::Terminal::Table.new(:title => "OpenStack Security Group Overview".bold, :headings => HEADER) do |t|
           t.style = {:all_separators => true, :border_i => "+"}
           rows.each { |row| t.add_row row }
         end
       end
 
       private
-      # parse and create the table's  rows
+      # parse the table's  rows
       #
       # @param [Array <OSA::Servers::Server>]
       #

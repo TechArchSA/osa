@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'osa/audit'
 module OSA
   module Helpers
 
@@ -7,6 +7,7 @@ module OSA
     # A helper module for all commandline options
     #
     module Options
+      include OSA::Audit
 
       # helper for OSA version
       def version
@@ -44,16 +45,16 @@ module OSA
         else
           puts "[-] ".yellow + "Creating connection template file 'connection.json', please edit and try again."
           conn_file = <<~FILE
-                    {
-                       "auth_url:"https://api-example.com/identity/v3",
-                       "auth_method":"password",
-                       "user_domain":"datacenter1",
-                       "username":"YOURUSER",
-                       "api_key":"YOURPASSWORD",
-                       "project_domain_name":"datacenter1",
-                       "project_name":"OUR_CLOUD_PROJECT",
-                       "service_type":"compute"
-                    }
+            {
+               "auth_url:"https://api-example.com/identity/v3",
+               "auth_method":"password",
+               "user_domain":"datacenter1",
+               "username":"YOURUSER",
+               "api_key":"YOURPASSWORD",
+               "project_domain_name":"datacenter1",
+               "project_name":"OUR_CLOUD_PROJECT",
+               "service_type":"compute"
+            }
           FILE
 
           File.write('connection.json', conn_file)
@@ -72,8 +73,6 @@ module OSA
             security_groups = OSA::SecurityGroups.parse(YAML.load(dump[0])).clone
             servers         = OSA::Servers.parse(YAML.load(dump[1])).clone
             security_groups_map = servers.map_security_groups(security_groups)
-            # puts OSA::Report.create(:terminal, security_groups_map)
-            # audit(security_groups_map) # TODO handle ports pub and prv
           rescue Exception => e
             puts "[x] ".red + "#{e}"
           end
@@ -83,44 +82,32 @@ module OSA
         end
       end
 
-      # helper for security group table
-      def table(security_groups_map)
-        puts OSA::Report.create(:terminal, security_groups_map)
+      # option helper to generate the general report
+      #   OSA::Helper::Options ---> OSA::Report#main --> OSA::Report::TerminalMainList#generate
+      # @param report_type [Symbol] expect :terminal or :sheet
+      #
+      def report_main(report_type, security_groups_map)
+        puts OSA::Report.main(report_type, security_groups_map) if report_type == :terminal
+        # OSA::Report.main(report_type, security_groups_map)      if report_type == :sheet   # TODO
+        puts "[!] Report as sheet feature is not yet implemented!" if report_type == :sheet
       end
 
-      # helper for rules audit
-      def audit(security_groups_map, pub_ports = nil, prv_ports = nil)
-        # if ports is not given then consider the defaults
-        pub_ports = pub_ports.map(&:to_i) || Helpers::Audit::PUB_PORTS
-        prv_ports = prv_ports.map(&:to_i) || Helpers::Audit::PRV_PORTS
-
-        puts "[+] ".bold + "Audit"
-        security_groups_map.each do |server|
-          server_name  = server.name
-          public_addr  =  server.addresses.public
-          next if public_addr.empty?  # skip if no public ip
-          server.security_groups.map do |sec_grp|
-            sec_grp.rules.map do |rule|
-              protocol = rule.ip_protocol
-              src_ip   = rule.ip_range
-              dst_port = [rule.to_port].flatten
-
-              next unless (pub_ports & dst_port).empty?                   # Skip if it's naturally a public service
-              if src_ip == '0.0.0.0/0' && !(prv_ports & dst_port).empty?  # Report if administrative port is publicly accessible
-                report :warning, server_name, public_addr, rule, src_ip, protocol, dst_port.join('')
-              end
-            end
-          end
-        end
-      end
-
-      # Helper to generate audit warnings
-      def report(type, server_name, public_addr, rule, src_ip, protocol, dst_port)
-        case type
-        when :warning
-          puts "[+] ".red + " Warning: #{rule.parent_group_name} | #{server_name}(#{public_addr.join(', ')}) : #{src_ip} ->  #{protocol}/#{dst_port}"
-        when :observation
-        end
+      # option helper for audit rules
+      #   OSA::Helper::Options ---> OSA::Report#audit --> OSA::Report::TerminalAudit#generate
+      # @param [security_groups_map]
+      #
+      # @param rule_name [String]
+      #
+      # @param options [Hash]
+      #   the options is data store for all rules_options
+      #   each rule will extract the data it need from the hash
+      #   so the options belongs to everyone
+      #
+      # @return [OSA::Audit::Rule]
+      #
+      def report_audit(report_type, security_groups_map, rule_name, options = {})
+        puts OSA::Report.audit(report_type, security_groups_map, rule_name, options)  if report_type == :terminal
+        OSA::Report.audit(report_type, security_groups_map, rule_name, options)       if report_type == :sheet
       end
 
     end

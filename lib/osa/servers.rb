@@ -34,7 +34,7 @@ module OSA
     # @param servers [Array <Hash>]
     #
     # @example
-    #   openstack = OpenStack::Connection.create(connection)
+    #   openstack = OpenStack::Connection.main(connection)
     #   servers_details = openstack.servers_detail
     #   servers = Servers.parse(server_details)
     #
@@ -64,7 +64,7 @@ module OSA
     #   if SecurityGroups#@sec_grp_objs ([Array <SecurityGroup>]), #neutralize_security_groups returns it.
     #
     # @example
-    #   openstack = OpenStack::Connection.create(connection)
+    #   openstack = OpenStack::Connection.main(connection)
     #   security_groups = SecurityGroups.parse(openstack.security_groups).security_groups
     #   servers = Servers.parse(openstack.servers_detail)
     #   servers.map_security_groups(security_groups)
