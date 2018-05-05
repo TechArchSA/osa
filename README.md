@@ -19,7 +19,64 @@ If you are working on auditing and reviewing OpenStack Security Group rules, you
 ## Usage
 
 ### As a tool
-WIP
+
+```
+$> osa -h
+
+
+              ______
+        '!!""""""""""""*!!'
+     .u$"!'            .!!"$"
+     *$!        'z`        ($!
+     +$-       .$$&`       !$!
+     +$-      `$$$$3       !$!
+     +$'   !!  '!$!   !!   !$!
+     +$'  ($$.  !$!  '$$)  !$!
+     +$'  $$$$  !$!  $$$$  !$!
+     +$'  $Ɛ    !$!   3$   !$!
+     ($!  `$%`  !3!  .$%   ($!
+      ($(` '"$!    `*$"` ."$!
+       `($(` '"$!.($". ."$!
+         `($(` !$$%. ."$!
+           `!$%$! !$%$!
+              `     `
+                     The Cyber Daemons - TechArch
+      
+OpenStack Security Auditor (OSA) - Tool to extract, map, run_audit OpenStack security groups with servers.
+
+Help menu:
+   -c, --connect [JSON_FILE]        connect to OpenStack using given json file.
+                                      (leave the file blank to generate a template file "connect.json")
+   -d, --dump FILE                  import security group and server details dump file,
+                                      (use OSE "https://github.com/TechArchSA/ose" tool.)
+   -k, --key PASSWORD               decrypt the given security group file, if encryption option used in OSE tool.
+                                      (used with -d/--dump)
+   -a, --audit [AUDITRULE]          audit the given security groups,
+                                      (default: all)
+       --report-as [terminal|sheet] show the report as terminal table or as a sheet,
+                                      (default: terminal)
+   -v, --version                    Check current and latest version
+   -h, --help                       Show this help message
+
+Audit modules Options:
+- exposed_admin_ports
+   -p, --pub-ports PORTS            public ports that are naturally public. ports separated by comma with no spaces.
+                                      (default: [80, 443, 25, 993, -1])
+   -P, --prv-ports PORTS            private ports that used to access critical services. ports separated by comma with no spaces.
+                                      (default: [20, 21, 22, 23, 135, 139, 389, 445, 3389, 8080, 2525])
+- insecure_protocols
+   -i, --insec-ports PORTS          public ports that are naturally public. ports separated by comma with no spaces.
+                                      (default: [80, 443, 25, 993, -1])
+- overlap_rules
+
+Usage:
+osa <OPTIONS>
+
+Example:
+osa -c connection.json
+osa -c connection.json -a exposed_admin_ports -P 3389,22,445 
+osa -d security_groups_map.yml -a exposed_admin_ports -P 3389,22,445 
+```
 
 
 ### As a library
