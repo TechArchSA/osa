@@ -99,7 +99,6 @@ begin
                options[:audit],
                audit_options)            if options[:audit] && options[:dump]
 
-
   puts OSA::Utils.logo, option_parser    if options.empty?
 rescue OptionParser::MissingArgument => e
   e.args.each {|arg| puts '[!] '.red + "#{e.reason.capitalize} for '#{arg}' option."}

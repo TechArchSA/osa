@@ -1,5 +1,5 @@
 module OSA
-  VERSION = "0.1.0"
+  VERSION = "1.0.0"
 
   module Version
 
