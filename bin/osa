@@ -8,7 +8,7 @@ require 'optionparser'
 
 options = {}
 option_parser = OptionParser.new
-option_parser.banner = "#{"OpenStack Security Auditor (OSA)".bold} - Tool to extract, map, run_audit OpenStack security groups with servers."
+option_parser.banner = "#{"OpenStack Security Auditor (OSA)".bold} - Tool to extract, map and audit OpenStack security groups with servers."
 option_parser.set_summary_indent '   '
 option_parser.separator "\nHelp menu:".underline
 option_parser.on('-c', '--connect [JSON_FILE]',
