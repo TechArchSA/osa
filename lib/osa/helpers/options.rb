@@ -22,6 +22,34 @@ module OSA
         end
       end
 
+      # option helper to generate the general report
+      #   OSA::Helper::Options --> OSA::Report#main --> OSA::Report::TerminalMainList#generate
+      # @param report_type [Symbol] expect :terminal or :sheet
+      #
+      def report_main(report_type, security_groups_map)
+        puts OSA::Report.main(report_type, security_groups_map) if report_type == :terminal
+        # OSA::Report.main(report_type, security_groups_map)      if report_type == :sheet   # TODO
+        puts "[!] Report as sheet feature is not yet implemented!" if report_type == :sheet
+      end
+
+      # option helper for audit rules
+      #   OSA::Helper::Options --> OSA::Report#audit --> OSA::Report::TerminalAudit#generate
+      # @param [security_groups_map]
+      #
+      # @param rule_name [String]
+      #
+      # @param options [Hash]
+      #   the options is data store for all rules_options
+      #   each rule will extract the data it need from the hash
+      #   so the options belongs to everyone
+      #
+      # @return [OSA::Audit::Rule]
+      #
+      def report_audit(report_type, security_groups_map, rule_name, options = {})
+        puts OSA::Report.audit(report_type, security_groups_map, rule_name, options)  if report_type == :terminal
+        OSA::Report.audit(report_type, security_groups_map, rule_name, options)       if report_type == :sheet
+      end
+
       # help for openstack connection
       def connect(file = '')
         if File.exists? file.to_s
@@ -80,34 +108,6 @@ module OSA
           puts "[!] " + "File not exist! '#{file}'"
           exit!
         end
-      end
-
-      # option helper to generate the general report
-      #   OSA::Helper::Options ---> OSA::Report#main --> OSA::Report::TerminalMainList#generate
-      # @param report_type [Symbol] expect :terminal or :sheet
-      #
-      def report_main(report_type, security_groups_map)
-        puts OSA::Report.main(report_type, security_groups_map) if report_type == :terminal
-        # OSA::Report.main(report_type, security_groups_map)      if report_type == :sheet   # TODO
-        puts "[!] Report as sheet feature is not yet implemented!" if report_type == :sheet
-      end
-
-      # option helper for audit rules
-      #   OSA::Helper::Options ---> OSA::Report#audit --> OSA::Report::TerminalAudit#generate
-      # @param [security_groups_map]
-      #
-      # @param rule_name [String]
-      #
-      # @param options [Hash]
-      #   the options is data store for all rules_options
-      #   each rule will extract the data it need from the hash
-      #   so the options belongs to everyone
-      #
-      # @return [OSA::Audit::Rule]
-      #
-      def report_audit(report_type, security_groups_map, rule_name, options = {})
-        puts OSA::Report.audit(report_type, security_groups_map, rule_name, options)  if report_type == :terminal
-        OSA::Report.audit(report_type, security_groups_map, rule_name, options)       if report_type == :sheet
       end
 
     end
