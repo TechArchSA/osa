@@ -60,11 +60,11 @@ module OSA
     #   merge required details since servers' details have only security groups' names
     #
     # @param security_groups [SecurityGroups] object or [Array <SecurityGroup>]
-    #   if SecurityGroups is given #neutralize_security_groups will get the SecurityGroups#@sec_grp_objs ([Array <SecurityGroup>])
-    #   if SecurityGroups#@sec_grp_objs ([Array <SecurityGroup>]), #neutralize_security_groups returns it.
+    #   if SecurityGroups is given #neutralize_security_groups will get the SecurityGroups#sec_grp_objs ([Array <SecurityGroup>])
+    #   if SecurityGroups#sec_grp_objs ([Array <SecurityGroup>]), #neutralize_security_groups returns it.
     #
     # @example
-    #   openstack = OpenStack::Connection.main(connection)
+    #   openstack = OpenStack::Connection.create(connection)
     #   security_groups = SecurityGroups.parse(openstack.security_groups).security_groups
     #   servers = Servers.parse(openstack.servers_detail)
     #   servers.map_security_groups(security_groups)
