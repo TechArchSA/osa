@@ -24,7 +24,11 @@ module OSA
 
       # option helper to generate the general report
       #   OSA::Helper::Options --> OSA::Report#main --> OSA::Report::TerminalMainList#generate
-      # @param report_type [Symbol] expect :terminal or :sheet
+      #
+      # @param report_type [Symbol]
+      #   report type, expects :terminal or :sheet
+      # @param security_groups_map [security_groups_map]
+      #   security groups map
       #
       def report_main(report_type, security_groups_map)
         puts OSA::Report.main(report_type, security_groups_map) if report_type == :terminal
@@ -34,10 +38,13 @@ module OSA
 
       # option helper for audit rules
       #   OSA::Helper::Options --> OSA::Report#audit --> OSA::Report::TerminalAudit#generate
-      # @param [security_groups_map]
       #
+      # @param report_type [Symbol]
+      #   report type, expects :terminal or :sheet
+      # @param security_groups_map [security_groups_map]
+      #   security groups map
       # @param rule_name [String]
-      #
+      #   rule name to audit the security groups
       # @param options [Hash]
       #   the options is data store for all rules_options
       #   each rule will extract the data it need from the hash
@@ -51,6 +58,10 @@ module OSA
       end
 
       # help for openstack connection
+      #
+      # @param file [String]
+      #   the JSON file that contains the OpenStack connection settings
+      #
       def connect(file = '')
         if File.exists? file.to_s
           begin
@@ -90,7 +101,15 @@ module OSA
         end
       end
 
-      # helper do read the security groups' dump file. Decrypt it if encrypted
+      # helper do read the security groups' dump file.
+      #   The [OSA::SecurityGroups#parse] and [OSA::Servers#parse] will load (using [YAML.load]),
+      #   then parse the content
+      #
+      # @param file [String]
+      #   dump file path
+      # @param password [String]
+      #   decryption key of the encrypted file
+      #
       def dump(file, password = nil)
         if File.exist? file
           begin
@@ -98,7 +117,7 @@ module OSA
             # dump = open(file).read.split(OSA::Utils::SEPARATOR)
             security_groups = OSA::SecurityGroups.parse(YAML.load(dump[0])).clone
             servers         = OSA::Servers.parse(YAML.load(dump[1])).clone
-            security_groups_map = servers.map_security_groups(security_groups)
+            servers.map_security_groups(security_groups)
           rescue Exception => e
             puts "[x] ".red + "#{e}"
           end
@@ -109,6 +128,17 @@ module OSA
       end
 
       # TODO: Decrypt the file here  using the given password. waiting OSE to see the encryption method
+      # Decrypts a given file if encrypted
+      #   The file is a YAML file contains two parts separated by ( *-----=-|-=-----* )
+      #   Security Groups and Server details respectively.
+      #
+      # @param file [String]
+      #   dump file path
+      # @param password [String]
+      #   decryption key of the encrypted file
+      #
+      # @return [Array <SecurityGroups, Servers>]
+      #
       def decrypt(file, password)
         file_content = open(file).read if password.nil?
         file_content = open(file).read if password
