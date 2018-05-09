@@ -94,10 +94,8 @@ module OSA
       def dump(file, password = nil)
         if File.exist? file
           begin
-            if password
-              file = file # TODO: Decrypt the file here  using the given password. waiting OSE to see the ecrtpytion method
-            end
-            dump = open(file).read.split(OSA::Utils::SEPARATOR)
+            dump = decrypt(file, password)
+            # dump = open(file).read.split(OSA::Utils::SEPARATOR)
             security_groups = OSA::SecurityGroups.parse(YAML.load(dump[0])).clone
             servers         = OSA::Servers.parse(YAML.load(dump[1])).clone
             security_groups_map = servers.map_security_groups(security_groups)
@@ -110,6 +108,12 @@ module OSA
         end
       end
 
+      # TODO: Decrypt the file here  using the given password. waiting OSE to see the encryption method
+      def decrypt(file, password)
+        file_content = open(file).read if password.nil?
+        file_content = open(file).read if password
+        file_content.split(OSA::Utils::SEPARATOR)
+      end
     end
   end
 end
